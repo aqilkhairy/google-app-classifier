@@ -37,36 +37,26 @@
       <div id="resultDiv">
         <button class="btnBack" id="btnBack" onclick="$('#resultDiv').hide();$('#inputDiv').show();"><i class="fa-solid fa-angle-left"></i>&nbsp;Back</button>
         <div class="sideBySide">
-          <h2>Scraped Reviews:</h2>
+          <h2>Scraped Reviews</h2>
+          <span style="width: 66%">&nbsp;</span>
           <button class="btnBack" style="float: right;" onclick="showGraph()"><i class="fa-solid fa-chart-pie"></i>&nbsp;Graph View</button>
         </div>
-        <table id="dataTable" style="width:100%;"></table>
+        <table id="dataTable" class="dataTable cell-border" style="width:100%;"></table>
       </div>
     </div>
   </div>
   <script>
     var label = [];
     var sentimentCount = [];
+    var config;
     const Toast = Swal.mixin({
       toast: true,
       position: 'top-end',
       showConfirmButton: false,
     })
-    var currentGraph = "bar"
+    
+    var chart;
     function showGraph() {
-      var graphData = {
-        labels: label,
-        datasets: [{
-          label: 'Sentiments Count',
-          data: sentimentCount,
-          backgroundColor: [
-            'rgb(255, 99, 132)',
-            'rgb(54, 162, 235)',
-            'rgb(255, 205, 86)'
-          ],
-          hoverOffset: 4
-        }]
-      };
       const graphPopup = Swal.mixin({
         showCloseButton: true,
         showCancelButton: false,
@@ -74,19 +64,45 @@
       });
       graphPopup.fire({
         html:
-          '<button id="toggleGraph" onclick="toggleGraph()">Toggle</button><div class="sideBySide"><canvas id="graph"></canvas></div>',
+          '<canvas id="graph"></canvas>' +
+          '<table id="graphTable" class="dataTable cell-border" style="display: none;"></table>' +
+          '<hr>' +
+          '<div class="sideBySide">' +
+            '<button class="tab graphButton active" id="pieButton" onclick="changeGraph(\'pie\')" disabled>Pie Chart</button>' +
+            '<button class="tab graphButton" id="barButton" onclick="changeGraph(\'bar\')">Bar Chart</button>' +
+            '<button class="tab graphButton" id="tableButton" onclick="showTableGraph()">Table View</button>' +
+          '</div>',
       });
-      toggleGraph(graphData);
-    }
-    function toggleGraph(graphData) {
-      currentGraph = (currentGraph == "bar") ? "pie" : "bar";
-      var chart = Chart.getChart("graph");
-        if (chart != undefined) {
-          chart.destroy();
-        }
-        chart = new Chart(document.getElementById("graph"),{ 
-        type: currentGraph,  
-        data: graphData,
+      $('#graphTable').DataTable({
+        data: [
+          [label[0], sentimentCount[0]],
+          [label[1], sentimentCount[1]],
+          [label[2], sentimentCount[2]],
+        ],
+        columns: [
+            { title: 'Sentiment'},
+            { title: 'Count' }
+        ],
+        paging: false,
+        searching: false,
+        ordering: false,
+        info: false,
+      });
+      config = { 
+        type: 'pie',  
+        data: {
+          labels: label,
+          datasets: [{
+            label: 'Count',
+            data: sentimentCount,
+            backgroundColor: [
+              'rgb(255, 99, 132)',
+              'rgb(54, 162, 235)',
+              'rgb(255, 205, 86)'
+            ],
+            hoverOffset: 4
+          }]
+        },
         options: {
           responsive: true,
           plugins: {
@@ -99,10 +115,49 @@
             }
           }
         },
-      });
-      chart.update();
-      // STOP AT FIXING TOGGLE CHART HERE
+      };
+      chart = new Chart(document.getElementById("graph"), config);
     }
+    function changeGraph(newType) {
+      var canvas = document.getElementById('graph');
+      var ctx = canvas.getContext("2d");
+      if (chart) {
+        chart.destroy();
+      }
+
+      var graphButtons = document.getElementsByClassName('graphButton');
+      for (var i = 0; i < graphButtons.length; i++) {
+        graphButtons[i].classList.remove('active');
+        graphButtons[i].disabled = false;
+      }
+
+      var newChart = jQuery.extend(true, {}, config)
+      newChart.type = newType;
+      if(newType == 'bar') {
+        newChart.options.plugins.legend.display = false;
+        document.getElementById('barButton').disabled = true;
+        document.getElementById('barButton').classList.add('active');
+      } else if(newType == 'pie'){
+        newChart.options.plugins.legend.display = true;
+        document.getElementById('pieButton').disabled = true;
+        document.getElementById('pieButton').classList.add('active');
+      }
+      document.getElementById('graphTable').style.display = 'none';
+      canvas.style.display = 'block';
+      chart = new Chart(ctx, newChart);
+    };
+    function showTableGraph() {
+      document.getElementById('pieButton').disabled = false;
+      document.getElementById('pieButton').classList.remove('active');
+      document.getElementById('barButton').disabled = false;
+      document.getElementById('barButton').classList.remove('active');
+      document.getElementById('tableButton').disabled = true;
+      document.getElementById('tableButton').classList.add('active');
+      document.getElementById('graphTable').style.width = '450px';
+      document.getElementById('graphTable').style.display = null;
+      document.getElementById('graph').style.display = 'none';
+    }
+    
     $(document).ready(function () {
       var btnTab1 = document.getElementById('btnTab1');
       var btnTab2 = document.getElementById('btnTab2');
@@ -194,7 +249,50 @@
                     { title: 'Prediction', width: '12%' }
                 ],
                 scrollY: '200px',
-                paging: true
+                paging: true,
+                dom: 'Bfrtip',
+                  buttons: [
+                    {
+                      extend: 'csv',
+                      text: 'Export CSV',
+                      title: appDetails['title'] + '_Reviews Classification'
+                    },
+                    {
+                      extend: 'print',
+                      text: 'Print Reviews',
+                      exportOptions: {
+                        modifier: {
+                            selected: null
+                        }
+                      },
+                    },
+                    {
+                      extend: 'print',
+                      text: 'Full Page Table',
+                      title: appDetails['title'] + ' Reviews Classification',
+                      exportOptions: {
+                          modifier: {
+                              selected: null
+                          }
+                      },
+                      autoPrint: false,
+                      customize: function ( win ) {
+                          $(win.document.body)
+                              .css('font-size', '10pt')
+                              .css('padding', '10px');
+
+                          $(win.document.body).find('h1')
+                              .addClass('titleText');
+      
+                          $(win.document.body).find( 'table' )
+                              .addClass( 'compact' )
+                              .css( 'font-size', 'inherit' )
+                              .css('backgroundColor', 'rgba(255, 255, 255, 0.5)')
+                              .css('border-radius',  '5px')
+                              .css('padding', '10px');
+                      }
+                    }
+                  ],
               });
               Toast.close();
           },

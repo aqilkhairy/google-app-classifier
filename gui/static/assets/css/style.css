@@ -6,13 +6,32 @@ body {
 
 .titleText {
     text-align: center;
-    color: white;
+    color: rgb(255, 255, 255);
     text-shadow: 2px 2px 4px #000000;
 }
 
 .sideBySide {
     display: flex;
     align-items: center;
+    text-align: center;
+
+    .tab {
+        width: 100%;
+        padding: 10px 20px;
+        background-color: lightgray;
+        border: none;
+        cursor: pointer;
+    }
+
+    .tab:hover {
+        background-color: gray;
+        color: white;
+    }
+
+    .tab.active {
+        background-color: gray;
+        color: white;
+    }
 }
 
 .container {
@@ -21,15 +40,14 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 2px 2px 4px #000000;
     padding: 40px;
     border-radius: 5px;
     text-align: center;
     width: 70%;
-    height: 65%;
-    overflow: scroll;
-
-
+    height: 420px;
+    overflow: auto;
 
     .btnSubmit {
         margin-top: 10px;
@@ -109,6 +127,7 @@ body {
 }
 
 .container textarea {
+    background-color: rgba(255, 255, 255, 0.7);
     width: 90%;
     padding: 10px;
     margin-top: 10px;
