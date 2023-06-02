@@ -47,18 +47,25 @@ def classify_app(url):
         sort=Sort.NEWEST
     )
     
+    label = ['Positive', 'Neutral', 'Negative']
+    sentimentCount = [0, 0, 0]
     scraped_reviews = ([],[])
     total_scraped_reviews = 0
-    total_empty_reviews = 0
     for r in results:
         if r['content'] is not None:
+            predicted_text = predict_text(r['content'])
             scraped_reviews[0].append(r['content'])
-            scraped_reviews[1].append(predict_text(r['content']))
+            scraped_reviews[1].append(predicted_text)
             total_scraped_reviews += 1
-        else:
-            total_empty_reviews += 1
+            if(predicted_text.lower() == 'positive'):
+                sentimentCount[0] += 1
+            else:
+                if(predicted_text.lower() == 'negative'):
+                    sentimentCount[2] += 1
+                else:
+                    sentimentCount[1] += 1
     
-    return scraped_reviews, app_details, total_scraped_reviews
+    return scraped_reviews, app_details, total_scraped_reviews, label, sentimentCount
     
 @app.route("/")
 def main():
@@ -79,10 +86,10 @@ def get_single_output():
 def get_url_output():
     if request.method == 'POST':
         url = request.form["url"]
-        scraped_reviews, app_details, total_scraped_reviews = classify_app(url)
+        scraped_reviews, app_details, total_scraped_reviews, label, sentimentCount = classify_app(url)
         reviews = scraped_reviews[0]
         sentiments = scraped_reviews[1]
-        return jsonify({'reviews': reviews, 'sentiments': sentiments, 'app_details': app_details, 'total_scraped_reviews': total_scraped_reviews})
+        return jsonify({'reviews': reviews, 'sentiments': sentiments, 'app_details': app_details, 'total_scraped_reviews': total_scraped_reviews, 'label': label, 'sentimentCount': sentimentCount})
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)

@@ -36,20 +36,77 @@
       </div>
       <div id="resultDiv">
         <button class="btnBack" id="btnBack" onclick="$('#resultDiv').hide();$('#inputDiv').show();"><i class="fa-solid fa-angle-left"></i>&nbsp;Back</button>
-        <h2>Scraped Reviews:</h2>
+        <div class="sideBySide">
+          <h2>Scraped Reviews:</h2>
+          <button class="btnBack" style="float: right;" onclick="showGraph()"><i class="fa-solid fa-chart-pie"></i>&nbsp;Graph View</button>
+        </div>
         <table id="dataTable" style="width:100%;"></table>
       </div>
     </div>
   </div>
   <script>
+    var label = [];
+    var sentimentCount = [];
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+    })
+    var currentGraph = "bar"
+    function showGraph() {
+      var graphData = {
+        labels: label,
+        datasets: [{
+          label: 'Sentiments Count',
+          data: sentimentCount,
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 205, 86)'
+          ],
+          hoverOffset: 4
+        }]
+      };
+      const graphPopup = Swal.mixin({
+        showCloseButton: true,
+        showCancelButton: false,
+        showConfirmButton: false
+      });
+      graphPopup.fire({
+        html:
+          '<button id="toggleGraph" onclick="toggleGraph()">Toggle</button><div class="sideBySide"><canvas id="graph"></canvas></div>',
+      });
+      toggleGraph(graphData);
+    }
+    function toggleGraph(graphData) {
+      currentGraph = (currentGraph == "bar") ? "pie" : "bar";
+      var chart = Chart.getChart("graph");
+        if (chart != undefined) {
+          chart.destroy();
+        }
+        chart = new Chart(document.getElementById("graph"),{ 
+        type: currentGraph,  
+        data: graphData,
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: 'Graph View'
+            }
+          }
+        },
+      });
+      chart.update();
+      // STOP AT FIXING TOGGLE CHART HERE
+    }
     $(document).ready(function () {
       var btnTab1 = document.getElementById('btnTab1');
       var btnTab2 = document.getElementById('btnTab2');
-      const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-      })
+      
       $("#resultDiv").hide();
       $("#single-text-form").submit(function (event) {
         event.preventDefault();
@@ -111,15 +168,9 @@
               var sentiments = response.sentiments;
               var appDetails = response.app_details;
               var totalReviews = response.total_scraped_reviews;
-              var total = $("<li>").text("Total Reviews: " + totalReviews);
-              $("#total-reviews").empty().append(total);
-              var appIcon = $("<img>")
-                  .attr("src", appDetails["icon"])
-                  .width('64px')
-                  .height('64px');
-              var appId = $("<li>").text("App ID: " + appDetails["appId"]);
-              var appName = $("<li>").text("App Name: " + appDetails["title"]);
-              $("#app-details").empty().append(appId, appName, appIcon);
+              label = response.label;
+              sentimentCount = response.sentimentCount;
+
               var data = [];
               for(var i = 0; i < reviews.length; i++) {
                 var array = [];
