@@ -90,10 +90,6 @@
         });
       });
       $("#url-form").submit(function (event) {
-        Toast.fire({
-          icon: 'info',
-          title: 'Processing reviews...',
-        })
         event.preventDefault();
         $("#resultDiv").hide();
         var button = $(this).find('#buttonSubmit');
@@ -101,6 +97,10 @@
         button.prop('disabled', true);
         buttonText.html('Processing...');
         var formData = $(this).serialize();
+        Toast.fire({
+          icon: 'info',
+          title: 'Processing reviews...',
+        });
         $.ajax({
           url: '/review',
           type: 'POST',
@@ -153,6 +153,11 @@
               buttonText.html('Predict');
               $("#resultDiv").hide();
               Toast.close();
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                html: '<b>Invalid Application ID!</b><p>Check your URL input, make sure you enter a proper application url as shown in the example below<br>(eg: https://play.google.com/store/apps/details?id=co.imba.he)</p>',
+              })
           }
         });
       });
@@ -174,7 +179,6 @@
       btnTab1.disabled = !btnTab1.disabled;
       btnTab2.disabled = !btnTab2.disabled;
     }
-    
   </script>
 </body>
 
