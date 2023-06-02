@@ -1,0 +1,17 @@
+Note:
+- Every ~10 reviews prediction took 1 second in this device.
+- Google Play limits 200 reviews for each request. (~3 mins each full request)
+
+Example for quick testing:
+https://play.google.com/store/apps/details?id=com.yc14ec100daa.www : 109
+https://play.google.com/store/apps/details?id=com.babil.match.conquer.strategy.puzzle.rpg : 151
+https://play.google.com/store/apps/details?id=com.hellotalk.hellowords : 86
+https://play.google.com/store/apps/details?id=com.rayark.mo : 90
+https://play.google.com/store/apps/details?id=co.imba.he : 76
+https://play.google.com/store/apps/details?id=com.meenzer.skormas : 16
+
+>> Plugins installed
+- SweetAlert2
+- FontAwesome
+- DataTable
+- Chart.js
