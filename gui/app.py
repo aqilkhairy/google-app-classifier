@@ -29,7 +29,8 @@ def predict_text(text):
     return predictions[0]
 
 def fetch_app(url):
-    app_id = url.strip().split('=')[1]
+    url = url.strip()
+    app_id = re.search(r'id=(\w+)', url).group(1)
 
     app_details = application(app_id)
     
