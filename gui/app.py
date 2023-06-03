@@ -30,7 +30,7 @@ def predict_text(text):
 
 def fetch_app(url):
     url = url.strip()
-    app_id = re.search(r'id=(\w+)', url).group(1)
+    app_id = re.search(r'id=([\w.]+)', url).group(1)
 
     app_details = application(app_id)
     
