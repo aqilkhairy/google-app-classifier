@@ -136,3 +136,10 @@ body {
     resize: none;
     font-size: 16px;
 }
+
+.grid-container {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
+#more {display: none;}
