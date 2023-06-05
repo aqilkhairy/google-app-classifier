@@ -1,14 +1,19 @@
 Note:
 - Every ~10 reviews prediction took 1 second in this device.
-- Google Play limits 200 reviews for each request. (~3 mins each full request)
+- Google Play limits 200 reviews for each request. (~20 secs each full request)
+- Time taken changes based on internet speed & device specs.
 
 Example for quick testing:
 https://play.google.com/store/apps/details?id=com.yc14ec100daa.www : 109
 https://play.google.com/store/apps/details?id=com.babil.match.conquer.strategy.puzzle.rpg : 151
+https://play.google.com/store/apps/details?id=com.wondershare.transmore: 255
+https://play.google.com/store/apps/details?id=com.vrplayer.vrapp.vrvideos: 118
 https://play.google.com/store/apps/details?id=com.hellotalk.hellowords : 86
 https://play.google.com/store/apps/details?id=com.rayark.mo : 90
 https://play.google.com/store/apps/details?id=co.imba.he : 76
-https://play.google.com/store/apps/details?id=com.meenzer.skormas : 16
+https://play.google.com/store/apps/details?id=com.itg.translator.prank.simulator.cat : 22
+https://play.google.com/store/apps/details?id=com.creativai.chataiassistant : 8
+https://play.google.com/store/apps/details?id=com.artifexmundi.queensquest4.gp.free : 141
 
 >> Plugins installed
 - SweetAlert2

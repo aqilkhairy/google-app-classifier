@@ -89,7 +89,7 @@
       graphPopup.fire({
         html:
           '<canvas id="graph"></canvas>' +
-          '<table id="graphTable" class="dataTable cell-border" style="display: none;"></table>' +
+          '<table id="graphTable" class="dataTable cell-border lastRowBold" style="display: none;"></table>' +
           '<hr>' +
           '<div class="sideBySide">' +
             '<button class="tab graphButton active" id="pieButton" onclick="changeGraph(\'pie\')" disabled>Pie Chart</button>' +
@@ -102,6 +102,7 @@
           [label[0], sentimentCount[0]],
           [label[1], sentimentCount[1]],
           [label[2], sentimentCount[2]],
+          ['Total', sentimentCount.reduce((sum, a) => sum + a, 0)],
         ],
         columns: [
             { title: 'Sentiment'},
@@ -120,9 +121,9 @@
             label: 'Count',
             data: sentimentCount,
             backgroundColor: [
-              'rgb(255, 99, 132)',
-              'rgb(54, 162, 235)',
-              'rgb(255, 205, 86)'
+              'lime',
+              'gray',
+              'red'
             ],
             hoverOffset: 4
           }]
@@ -261,9 +262,24 @@
         button.prop('disabled', true);
         buttonText.html('Processing...');
         var formData = $(this).serialize();
+
+        const start = Date.now();
+        var timerInterval; 
         Toast.fire({
           icon: 'info',
           title: 'Processing reviews...',
+          html: ' ',
+          timer: 0,
+          didOpen: (toast) => {
+            timerInterval = setInterval(() => {
+              const elapsedTime = (Date.now() - start) / 1000;
+              const formattedTime = elapsedTime.toFixed(3);
+              toast.querySelector('.swal2-html-container').innerHTML = `<span style="font-size: 12px;">Time elapsed: ${formattedTime} seconds</span>`;
+            }, 1);
+          },
+          willClose: () => {
+            clearInterval(timerInterval);
+          }
         });
         $.ajax({
           url: '/review',
@@ -297,7 +313,7 @@
               document.getElementById("appUrl").href = appDetails["url"];
 
               var classification;
-              var colorLabel = ['green', 'gray', 'red'];
+              var colorLabel = ['green', 'dark-gray', 'red'];
               var maxIndex = sentimentCount.indexOf(Math.max(...sentimentCount));
               function formatDecimal(number) {
                 if (Number.isInteger(number)) {
