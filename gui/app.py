@@ -8,7 +8,7 @@ from google_play_scraper import Sort, reviews_all, app as application
 app = Flask(__name__)
 
 model = joblib.load('decision_tree_model.joblib')
-features = joblib.load('features.joblib')
+vectorizer = joblib.load('vectorizer.joblib')
 
 def predict_text(text):
     def process_text(review_text):
@@ -16,13 +16,17 @@ def predict_text(text):
         if review_text is None or review_text == '':
             review_text = ''
         review_text = review_text.lower()
-        review_text = re.sub('[^\w\s]', '', review_text)
-        review_text = ' '.join([word for word in review_text.split() if word not in (stop)])
+        review_text = re.sub(r'\W',' ', review_text)
         
-        vectorized_text = [int(word in set(review_text.split())) for word in features]
-        processed_text = np.array([vectorized_text])
+        review_text = re.sub(r'\bnot\b', 'not_', review_text)
+        review_text = re.sub(r'\bno\b', 'no_', review_text)
         
-        return processed_text
+        words = review_text.split()
+        review_text = ' '.join([word for word in words if word not in stop])
+
+        vectorized_text = vectorizer.transform([review_text])
+        
+        return vectorized_text
     
     processed_text = process_text(text)
     predictions = model.predict(processed_text)
@@ -90,7 +94,9 @@ def get_url_output():
         scraped_reviews, app_details, total_scraped_reviews, label, sentimentCount = classify_app(url)
         reviews = scraped_reviews[0]
         sentiments = scraped_reviews[1]
-        return jsonify({'reviews': reviews, 'sentiments': sentiments, 'app_details': app_details, 'total_scraped_reviews': total_scraped_reviews, 'label': label, 'sentimentCount': sentimentCount})
+        return jsonify({'reviews': reviews, 'sentiments': sentiments, 
+                        'app_details': app_details, 'total_scraped_reviews': total_scraped_reviews, 
+                        'label': label, 'sentimentCount': sentimentCount})
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
